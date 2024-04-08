@@ -51,7 +51,6 @@ namespace AsistenciaAlumnos
             dgv_Asistencias.Columns[2].Width = 100;
             #endregion
         }
-
         private void LlenarDGVs()
         {
             #region DgvAlumnos
@@ -75,7 +74,6 @@ namespace AsistenciaAlumnos
             }
             #endregion
         }
-
         private void TxtBox_a_objAlu()
         {
             //Tomamos los datos del form y se lo damos a los atributos
@@ -83,7 +81,6 @@ namespace AsistenciaAlumnos
             objEntAlu.Apellido = txt_Apellido.Text;
             objEntAlu.Nombre = txt_Nombre.Text;
         }
-
         private void btn_CargarAlu_Click(object sender, EventArgs e)
         {
             int nGrabados = -1;
@@ -114,6 +111,59 @@ namespace AsistenciaAlumnos
             maskedTextBox_Fecha.Text = string.Empty;
             radioButton_No.Checked = false;
             radioButton_Si.Checked = false;
+        }
+        private void dgv_Alumnos_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            DataSet ds = new DataSet();
+
+            objEntAlu.Documento = Convert.ToInt32(dgv_Alumnos.CurrentRow.Cells[0].Value);
+
+            ds = objNegAlu.listadoAlumnos(objEntAlu.Documento.ToString());
+
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                Ds_a_TxtBox(ds);
+                btn_CargarAlu.Visible = false;
+                lbl_Mensaje.Text = string.Empty;
+            }
+        }
+        private void Ds_a_TxtBox(DataSet ds)
+        {
+            txt_Documento.Text = ds.Tables[0].Rows[0]["Documento"].ToString();
+            txt_Apellido.Text = ds.Tables[0].Rows[0]["Apellido"].ToString();
+            txt_Nombre.Text = ds.Tables[0].Rows[0]["Nombre"].ToString();
+            txt_Documento.Enabled = false;
+        }
+        private void btn_ModificarAlu_Click(object sender, EventArgs e)
+        {
+            int nResultado = -1;
+            TxtBox_a_objAlu();
+            nResultado = objNegAlu.abmAlumnos("Modificar", objEntAlu);
+
+            if (nResultado != -1) 
+            {
+                MessageBox.Show("Aviso", "El Alumno fue Modificado con exito.");
+                LimpiarDGVs();
+                LlenarDGVs();
+                txt_Documento.Enabled = true;
+            }
+            else
+            {
+                MessageBox.Show("Error", "Se produjo un error al intentar modificar el alumno.");
+            }
+        }
+        private void btn_EliminarAlu_Click(object sender, EventArgs e)
+        {
+            DialogResult resultado = MessageBox.Show("¿Está seguro que desea eliminar el alumno con DNI " + int.Parse(txt_Documento.Text) + "?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (resultado == DialogResult.Yes)
+            {
+                int nGrabados = -1;
+                Alumno NuevoAlumno = new Alumno(int.Parse(txt_Documento.Text), txt_Apellido.Text, txt_Nombre.Text);
+                nGrabados = objNegAlu.abmAlumnos("Borrar", NuevoAlumno);
+                LlenarDGVs();
+                LimpiarDGVs();
+
+            }
         }
     }
 }

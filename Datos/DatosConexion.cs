@@ -11,7 +11,10 @@ namespace Datos
     public class DatosConexion
     {
         public SqlConnection conexion;
-        protected string cadenaConexion = "Data Source=DESKTOP-M5DJ7QL\\SQLEXPRESS;Initial Catalog=AsistenciaAlumnos;Integrated Security=True";
+        //BD Casa
+        //protected string cadenaConexion = "Data Source=DESKTOP-M5DJ7QL\\SQLEXPRESS;Initial Catalog=AsistenciaAlumnos;Integrated Security=True";
+        //BD Facu
+        protected string cadenaConexion = "Data Source=EQUIPO\\SQLEXPRESS;Initial Catalog=AsisAlumnos;Integrated Security=True";
 
         public DatosConexion()
         {

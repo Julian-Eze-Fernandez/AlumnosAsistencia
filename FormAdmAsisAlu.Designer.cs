@@ -42,8 +42,6 @@
             this.lbl_Nombre = new System.Windows.Forms.Label();
             this.lbl_Documento = new System.Windows.Forms.Label();
             this.PagAsistencias = new System.Windows.Forms.TabPage();
-            this.maskedTextBox_Fecha = new System.Windows.Forms.MaskedTextBox();
-            this.maskedTextBox_DocAluAsistencia = new System.Windows.Forms.MaskedTextBox();
             this.btn_EliminarAsis = new System.Windows.Forms.Button();
             this.btn_ModificarAsis = new System.Windows.Forms.Button();
             this.btn_CargarAsis = new System.Windows.Forms.Button();
@@ -53,6 +51,8 @@
             this.radioButton_Si = new System.Windows.Forms.RadioButton();
             this.lbl_fecha = new System.Windows.Forms.Label();
             this.lbl_docAlu = new System.Windows.Forms.Label();
+            this.txt_docAlu = new System.Windows.Forms.TextBox();
+            this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
             this.tabControl1.SuspendLayout();
             this.PagAlumnos.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Alumnos)).BeginInit();
@@ -117,6 +117,7 @@
             this.btn_EliminarAlu.TabIndex = 17;
             this.btn_EliminarAlu.Text = "Eliminar";
             this.btn_EliminarAlu.UseVisualStyleBackColor = true;
+            this.btn_EliminarAlu.Click += new System.EventHandler(this.btn_EliminarAlu_Click);
             // 
             // btn_ModificarAlu
             // 
@@ -126,6 +127,7 @@
             this.btn_ModificarAlu.TabIndex = 16;
             this.btn_ModificarAlu.Text = "Modificar";
             this.btn_ModificarAlu.UseVisualStyleBackColor = true;
+            this.btn_ModificarAlu.Click += new System.EventHandler(this.btn_ModificarAlu_Click);
             // 
             // btn_CargarAlu
             // 
@@ -144,6 +146,7 @@
             this.dgv_Alumnos.Name = "dgv_Alumnos";
             this.dgv_Alumnos.Size = new System.Drawing.Size(345, 316);
             this.dgv_Alumnos.TabIndex = 6;
+            this.dgv_Alumnos.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_Alumnos_CellClick);
             // 
             // txt_Apellido
             // 
@@ -191,8 +194,8 @@
             // 
             // PagAsistencias
             // 
-            this.PagAsistencias.Controls.Add(this.maskedTextBox_Fecha);
-            this.PagAsistencias.Controls.Add(this.maskedTextBox_DocAluAsistencia);
+            this.PagAsistencias.Controls.Add(this.dateTimePicker1);
+            this.PagAsistencias.Controls.Add(this.txt_docAlu);
             this.PagAsistencias.Controls.Add(this.btn_EliminarAsis);
             this.PagAsistencias.Controls.Add(this.btn_ModificarAsis);
             this.PagAsistencias.Controls.Add(this.btn_CargarAsis);
@@ -207,23 +210,6 @@
             this.PagAsistencias.TabIndex = 1;
             this.PagAsistencias.Text = "Asistencias";
             this.PagAsistencias.UseVisualStyleBackColor = true;
-            // 
-            // maskedTextBox_Fecha
-            // 
-            this.maskedTextBox_Fecha.Location = new System.Drawing.Point(19, 89);
-            this.maskedTextBox_Fecha.Mask = "00/00/0000";
-            this.maskedTextBox_Fecha.Name = "maskedTextBox_Fecha";
-            this.maskedTextBox_Fecha.Size = new System.Drawing.Size(100, 20);
-            this.maskedTextBox_Fecha.TabIndex = 21;
-            this.maskedTextBox_Fecha.ValidatingType = typeof(System.DateTime);
-            // 
-            // maskedTextBox_DocAluAsistencia
-            // 
-            this.maskedTextBox_DocAluAsistencia.Location = new System.Drawing.Point(19, 36);
-            this.maskedTextBox_DocAluAsistencia.Mask = "00.000.000";
-            this.maskedTextBox_DocAluAsistencia.Name = "maskedTextBox_DocAluAsistencia";
-            this.maskedTextBox_DocAluAsistencia.Size = new System.Drawing.Size(100, 20);
-            this.maskedTextBox_DocAluAsistencia.TabIndex = 19;
             // 
             // btn_EliminarAsis
             // 
@@ -316,6 +302,21 @@
             this.lbl_docAlu.TabIndex = 6;
             this.lbl_docAlu.Text = "DNI Alumno";
             // 
+            // txt_docAlu
+            // 
+            this.txt_docAlu.Location = new System.Drawing.Point(19, 36);
+            this.txt_docAlu.Name = "txt_docAlu";
+            this.txt_docAlu.Size = new System.Drawing.Size(100, 20);
+            this.txt_docAlu.TabIndex = 22;
+            // 
+            // dateTimePicker1
+            // 
+            this.dateTimePicker1.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dateTimePicker1.Location = new System.Drawing.Point(19, 89);
+            this.dateTimePicker1.Name = "dateTimePicker1";
+            this.dateTimePicker1.Size = new System.Drawing.Size(100, 20);
+            this.dateTimePicker1.TabIndex = 23;
+            // 
             // FormAdmAsisAlu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -353,8 +354,6 @@
         private System.Windows.Forms.Label lbl_Nombre;
         private System.Windows.Forms.Label lbl_Documento;
         private System.Windows.Forms.TabPage PagAsistencias;
-        private System.Windows.Forms.MaskedTextBox maskedTextBox_Fecha;
-        private System.Windows.Forms.MaskedTextBox maskedTextBox_DocAluAsistencia;
         private System.Windows.Forms.Button btn_EliminarAsis;
         private System.Windows.Forms.Button btn_ModificarAsis;
         private System.Windows.Forms.Button btn_CargarAsis;
@@ -364,5 +363,7 @@
         private System.Windows.Forms.RadioButton radioButton_Si;
         private System.Windows.Forms.Label lbl_fecha;
         private System.Windows.Forms.Label lbl_docAlu;
+        private System.Windows.Forms.TextBox txt_docAlu;
+        private System.Windows.Forms.DateTimePicker dateTimePicker1;
     }
 }
