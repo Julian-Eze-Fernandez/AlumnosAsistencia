@@ -18,9 +18,15 @@ namespace Negocio
             return objDatosAsis.abmAsistencias(accion, objAsistencia);
         }
 
-        public DataSet listadoAsistencias(string cual)
+
+        public DataSet listadoAsistencias(string documentoAlu, DateTime fecha)
         {
-            return objDatosAsis.listadoAasistencias(cual);
+            return objDatosAsis.listadoAsistencias(documentoAlu, fecha);
+        }
+
+        public bool ExisteDniAlumno(string documentoAlu)
+        {
+            return objDatosAsis.ExisteDniAlumno(documentoAlu);
         }
     }
 }

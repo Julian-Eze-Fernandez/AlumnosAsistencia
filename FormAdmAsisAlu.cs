@@ -16,13 +16,16 @@ namespace AsistenciaAlumnos
     {
         public Alumno objEntAlu = new Alumno();
         public NegAlumnos objNegAlu = new NegAlumnos();
+        public Asistencia objEntAsi = new Asistencia();
+        public NegAsistencias objNegAsi = new NegAsistencias();
 
 
         public FormAdmAsisAlu()
         {
             InitializeComponent();
             CrearDGVs();
-            LlenarDGVs();
+            LlenarDGVAlu();
+            LlenarDGVAsis();
         }
 
         private void CrearDGVs()
@@ -41,19 +44,20 @@ namespace AsistenciaAlumnos
 
             #region DgvAsistencias
             //Creacion DGV Asistencias
-            dgv_Asistencias.ColumnCount = 3;
-            dgv_Asistencias.Columns[0].HeaderText = "DNI";
-            dgv_Asistencias.Columns[1].HeaderText = "Fecha";
-            dgv_Asistencias.Columns[2].HeaderText = "Asistencia";
+            dgv_Asistencias.ColumnCount = 4;
+            dgv_Asistencias.Columns[0].HeaderText = "idAsistencia";
+            dgv_Asistencias.Columns[1].HeaderText = "DNI";
+            dgv_Asistencias.Columns[2].HeaderText = "Fecha";
+            dgv_Asistencias.Columns[3].HeaderText = "Asistencia";
 
             dgv_Asistencias.Columns[0].Width = 100;
             dgv_Asistencias.Columns[1].Width = 100;
             dgv_Asistencias.Columns[2].Width = 100;
+            dgv_Asistencias.Columns[3].Width = 100;
             #endregion
         }
-        private void LlenarDGVs()
+        private void LlenarDGVAlu()
         {
-            #region DgvAlumnos
             //limpiamos el DataGridView
             dgv_Alumnos.Rows.Clear();
 
@@ -72,8 +76,9 @@ namespace AsistenciaAlumnos
             {
                 lbl_Mensaje.Text = "No hay Alumnos cargados en el sistema.";
             }
-            #endregion
         }
+
+        //Alumnos
         private void TxtBox_a_objAlu()
         {
             //Tomamos los datos del form y se lo damos a los atributos
@@ -81,6 +86,36 @@ namespace AsistenciaAlumnos
             objEntAlu.Apellido = txt_Apellido.Text;
             objEntAlu.Nombre = txt_Nombre.Text;
         }
+        private void Ds_a_TxtBoxAlu(DataSet ds)
+        {
+            txt_Documento.Text = ds.Tables[0].Rows[0]["Documento"].ToString();
+            txt_Apellido.Text = ds.Tables[0].Rows[0]["Apellido"].ToString();
+            txt_Nombre.Text = ds.Tables[0].Rows[0]["Nombre"].ToString();
+            txt_Documento.Enabled = false;
+        }
+        private void dgv_Alumnos_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            DataSet ds = new DataSet();
+
+            objEntAlu.Documento = Convert.ToInt32(dgv_Alumnos.CurrentRow.Cells[0].Value);
+
+            ds = objNegAlu.listadoAlumnos(objEntAlu.Documento.ToString());
+
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                Ds_a_TxtBoxAlu(ds);
+                btn_CargarAlu.Visible = false;
+                lbl_Mensaje.Text = string.Empty;
+            }
+        }
+        private void LimpiarDGVAlu()
+        {
+            txt_Documento.Text = string.Empty;
+            txt_Apellido.Text = string.Empty;
+            txt_Nombre.Text = string.Empty;
+            btn_CargarAlu.Visible = true;
+        }
+
         private void btn_CargarAlu_Click(object sender, EventArgs e)
         {
             int nGrabados = -1;
@@ -97,42 +132,9 @@ namespace AsistenciaAlumnos
             else
             {
                 lbl_Mensaje.Text = "Se cargo el Alumno con éxito.";
-                LlenarDGVs();
-                LimpiarDGVs();
+                LlenarDGVAlu();
+                LimpiarDGVAlu();
             }
-        }
-        private void LimpiarDGVs()
-        {
-            txt_Documento.Text = string.Empty;
-            txt_Apellido.Text = string.Empty;
-            txt_Nombre.Text = string.Empty;
-
-            maskedTextBox_DocAluAsistencia.Text = string.Empty;
-            maskedTextBox_Fecha.Text = string.Empty;
-            radioButton_No.Checked = false;
-            radioButton_Si.Checked = false;
-        }
-        private void dgv_Alumnos_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            DataSet ds = new DataSet();
-
-            objEntAlu.Documento = Convert.ToInt32(dgv_Alumnos.CurrentRow.Cells[0].Value);
-
-            ds = objNegAlu.listadoAlumnos(objEntAlu.Documento.ToString());
-
-            if (ds.Tables[0].Rows.Count > 0)
-            {
-                Ds_a_TxtBox(ds);
-                btn_CargarAlu.Visible = false;
-                lbl_Mensaje.Text = string.Empty;
-            }
-        }
-        private void Ds_a_TxtBox(DataSet ds)
-        {
-            txt_Documento.Text = ds.Tables[0].Rows[0]["Documento"].ToString();
-            txt_Apellido.Text = ds.Tables[0].Rows[0]["Apellido"].ToString();
-            txt_Nombre.Text = ds.Tables[0].Rows[0]["Nombre"].ToString();
-            txt_Documento.Enabled = false;
         }
         private void btn_ModificarAlu_Click(object sender, EventArgs e)
         {
@@ -140,11 +142,11 @@ namespace AsistenciaAlumnos
             TxtBox_a_objAlu();
             nResultado = objNegAlu.abmAlumnos("Modificar", objEntAlu);
 
-            if (nResultado != -1) 
+            if (nResultado != -1)
             {
                 MessageBox.Show("Aviso", "El Alumno fue Modificado con exito.");
-                LimpiarDGVs();
-                LlenarDGVs();
+                LimpiarDGVAlu();
+                LlenarDGVAlu();
                 txt_Documento.Enabled = true;
             }
             else
@@ -160,10 +162,184 @@ namespace AsistenciaAlumnos
                 int nGrabados = -1;
                 Alumno NuevoAlumno = new Alumno(int.Parse(txt_Documento.Text), txt_Apellido.Text, txt_Nombre.Text);
                 nGrabados = objNegAlu.abmAlumnos("Borrar", NuevoAlumno);
-                LlenarDGVs();
-                LimpiarDGVs();
+                LlenarDGVAlu();
+                LimpiarDGVAlu();
 
             }
         }
+        private void btn_LimpiezaAlu_Click(object sender, EventArgs e)
+        {
+            LimpiarDGVAlu();
+            txt_Documento.Enabled = true;
+        }
+
+
+        //Asistencias
+        private void LlenarDGVAsis()
+        {
+            dgv_Asistencias.Rows.Clear();
+
+            DataSet ds = new DataSet();
+            string documentoAlu = "Todos"; // Obtener todos los registros de asistencia
+            DateTime fecha = DateTime.Now; // Utilizar la fecha actual por defecto
+            ds = objNegAsi.listadoAsistencias(documentoAlu, fecha);
+
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    dgv_Asistencias.Rows.Add(dr[0].ToString(), dr[1].ToString(), dr[2].ToString(), dr[3].ToString());
+                }
+            }
+            else
+            {
+                lbl_Mensaje.Text = "No hay se encuentran cargadas las asistencias en el sistema.";
+            }
+        }
+        private void Ds_a_TxtBoxAsis(DataSet ds)
+        {
+            txt_IdAsis.Text = ds.Tables[0].Rows[0]["idAsistencia"].ToString();
+            txt_docAlu.Text = ds.Tables[0].Rows[0]["docAlumno"].ToString();
+            dateTimePicker1.Value = (DateTime)ds.Tables[0].Rows[0]["Fecha"];
+            radioButton_Si.Checked = (bool)ds.Tables[0].Rows[0]["Presente"];
+
+            txt_IdAsis.Enabled = false;
+            txt_docAlu.Enabled = false;
+        }
+        private void dgv_Asistencias_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                string idAsis = dgv_Asistencias.CurrentRow.Cells[0].Value.ToString();
+                string documentoAlu = dgv_Asistencias.CurrentRow.Cells[1].Value.ToString();
+                DateTime fecha = Convert.ToDateTime(dgv_Asistencias.CurrentRow.Cells[2].Value);
+                DataSet ds = objNegAsi.listadoAsistencias(documentoAlu, fecha);
+
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+                    Ds_a_TxtBoxAsis(ds);
+                    btn_CargarAsis.Visible = false;
+                    lbl_MensajeAsi.Text = string.Empty;
+                }
+            }
+        }
+        private void LimpiarDGVAsis()
+        {
+            txt_IdAsis.Text = string.Empty;
+            txt_docAlu.Text = string.Empty;
+            dateTimePicker1.Value = DateTime.Today;
+            radioButton_Si.Checked = false;
+            btn_CargarAsis.Visible = true;
+        }
+
+        private void btn_CargarAsis_Click(object sender, EventArgs e)
+        {
+            #region CargaVieja
+            //int nGrabados = -1;
+
+            //string documentoAlu = txt_docAlu.Text;
+
+            //if (objNegAsi.ExisteDniAlumno(documentoAlu))
+            //{
+            //    Asistencia NuevaAsistencia = new Asistencia(int.Parse(txt_docAlu.Text), dateTimePicker1.Value, radioButton_Si.Checked);
+
+            //    nGrabados = objNegAsi.abmAsistencias("Alta", NuevaAsistencia);
+
+            //    if (nGrabados == -1)
+            //    {
+            //        lbl_MensajeAsi.Text = "No se pudo cargar Alumnos en el sistema.";
+            //    }
+            //    else
+            //    {
+            //        lbl_MensajeAsi.Text = "Se cargo el Alumno con éxito.";
+            //        LlenarDGVAsis();
+            //        LimpiarDGVAsis();
+            //    }
+            //}
+            //else
+            //{
+            //    MessageBox.Show("El DNI ingresado no existe.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
+            #endregion
+
+            int nGrabados = -1;
+
+            string documentoAlu = txt_docAlu.Text;
+
+            if (objNegAsi.ExisteDniAlumno(documentoAlu))
+            {
+                // Formatear la fecha en el formato esperado por la base de datos
+                string fechaFormateada = dateTimePicker1.Value.ToString("yyyy-MM-dd HH:mm:ss");
+
+                // Crear el objeto Asistencia
+                Asistencia NuevaAsistencia = new Asistencia(int.Parse(txt_IdAsis.Text) , int.Parse(txt_docAlu.Text), DateTime.Parse(fechaFormateada), radioButton_Si.Checked);
+
+                nGrabados = objNegAsi.abmAsistencias("Alta", NuevaAsistencia);
+
+                if (nGrabados == -1)
+                {
+                    lbl_MensajeAsi.Text = "No se pudo cargar Alumnos en el sistema.";
+                }
+                else
+                {
+                    lbl_MensajeAsi.Text = "Se cargo el Alumno con éxito.";
+                    LlenarDGVAsis();
+                    LimpiarDGVAsis();
+                }
+            }
+            else
+            {
+                MessageBox.Show("El DNI ingresado no existe.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        private void btn_ModificarAsis_Click(object sender, EventArgs e)
+        {
+            int nResultado = -1;
+            // Obtener la fecha del DateTimePicker en el formato esperado por la base de datos
+            DateTime fecha = dateTimePicker1.Value.Date; // Obtiene solo la parte de la fecha, sin la parte de la hora
+            Asistencia NuevaAsistencia = new Asistencia( int.Parse(txt_IdAsis.Text), int.Parse(txt_docAlu.Text), fecha, radioButton_Si.Checked);
+
+            DateTime nuevaFecha = fecha;
+            nResultado = objNegAsi.abmAsistencias("Modificar", NuevaAsistencia); //invocar a la capa de negocio
+
+            if (nResultado != -1)
+            {
+                MessageBox.Show("La cuota fue Modificada con éxito", "Aviso");
+                LimpiarDGVAsis();
+                LlenarDGVAsis();
+
+                txt_docAlu.Enabled = true;
+                txt_IdAsis.Enabled = true;
+            }
+            else
+            {
+                MessageBox.Show("Se produjo un error al intentar modificar la cuota", "Error");
+            }
+        }
+        private void btnEliminarAsi_Click(object sender, EventArgs e)
+        {
+            DateTime fecha = dateTimePicker1.Value.Date; // Obtiene solo la parte de la fecha, sin la parte de la hora
+
+            DialogResult resultado = MessageBox.Show("¿Está seguro que desea eliminar la asistencia?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (resultado == DialogResult.Yes)
+            {
+                int nGrabados = -1;
+                Asistencia NuevaAsistencia = new Asistencia(int.Parse(txt_IdAsis.Text), int.Parse(txt_docAlu.Text), fecha, radioButton_Si.Checked);
+
+                nGrabados = objNegAsi.abmAsistencias("Borrar", NuevaAsistencia);
+                LlenarDGVAsis();
+                LimpiarDGVAsis();
+
+            }
+        }
+        private void btn_LimpiezaAsis_Click(object sender, EventArgs e)
+        {
+            LimpiarDGVAsis();
+            txt_docAlu.Enabled = true;
+            txt_IdAsis.Enabled = true;
+
+        }
+
+
     }
 }
