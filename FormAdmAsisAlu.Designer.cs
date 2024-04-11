@@ -28,8 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.PagAlumnos = new System.Windows.Forms.TabPage();
+            this.btn_LimpiezaAlu = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.txt_Documento = new System.Windows.Forms.TextBox();
             this.lbl_Mensaje = new System.Windows.Forms.Label();
@@ -43,10 +45,13 @@
             this.lbl_Nombre = new System.Windows.Forms.Label();
             this.lbl_Documento = new System.Windows.Forms.Label();
             this.PagAsistencias = new System.Windows.Forms.TabPage();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.radioButton_No = new System.Windows.Forms.RadioButton();
+            this.radioButton_Si = new System.Windows.Forms.RadioButton();
+            this.txt_IdAsis = new System.Windows.Forms.TextBox();
+            this.lbl_IdAsis = new System.Windows.Forms.Label();
             this.btn_LimpiezaAsis = new System.Windows.Forms.Button();
             this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
-            this.lbl_Presente = new System.Windows.Forms.Label();
-            this.radioButton_Si = new System.Windows.Forms.RadioButton();
             this.btnEliminarAsi = new System.Windows.Forms.Button();
             this.lbl_MensajeAsi = new System.Windows.Forms.Label();
             this.txt_docAlu = new System.Windows.Forms.TextBox();
@@ -55,17 +60,18 @@
             this.dgv_Asistencias = new System.Windows.Forms.DataGridView();
             this.lbl_fecha = new System.Windows.Forms.Label();
             this.lbl_docAlu = new System.Windows.Forms.Label();
-            this.txt_IdAsis = new System.Windows.Forms.TextBox();
-            this.lbl_IdAsis = new System.Windows.Forms.Label();
-            this.btn_LimpiezaAlu = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.radioButton_No = new System.Windows.Forms.RadioButton();
+            this.epv_DniAlumno = new System.Windows.Forms.ErrorProvider(this.components);
+            this.epv_DniAlumnoAsi = new System.Windows.Forms.ErrorProvider(this.components);
+            this.epv_IdAsis = new System.Windows.Forms.ErrorProvider(this.components);
             this.tabControl1.SuspendLayout();
             this.PagAlumnos.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Alumnos)).BeginInit();
             this.PagAsistencias.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgv_Asistencias)).BeginInit();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_Asistencias)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.epv_DniAlumno)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.epv_DniAlumnoAsi)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.epv_IdAsis)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -101,6 +107,16 @@
             this.PagAlumnos.Text = "Alumnos";
             this.PagAlumnos.UseVisualStyleBackColor = true;
             // 
+            // btn_LimpiezaAlu
+            // 
+            this.btn_LimpiezaAlu.Image = global::AlumnosAsistencia.Properties.Resources.icons8_clear_24;
+            this.btn_LimpiezaAlu.Location = new System.Drawing.Point(16, 18);
+            this.btn_LimpiezaAlu.Name = "btn_LimpiezaAlu";
+            this.btn_LimpiezaAlu.Size = new System.Drawing.Size(38, 23);
+            this.btn_LimpiezaAlu.TabIndex = 32;
+            this.btn_LimpiezaAlu.UseVisualStyleBackColor = true;
+            this.btn_LimpiezaAlu.Click += new System.EventHandler(this.btn_LimpiezaAlu_Click);
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -114,9 +130,11 @@
             // txt_Documento
             // 
             this.txt_Documento.Location = new System.Drawing.Point(16, 75);
+            this.txt_Documento.MaxLength = 8;
             this.txt_Documento.Name = "txt_Documento";
             this.txt_Documento.Size = new System.Drawing.Size(100, 20);
             this.txt_Documento.TabIndex = 19;
+            this.txt_Documento.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Documento_KeyPress);
             // 
             // lbl_Mensaje
             // 
@@ -219,7 +237,6 @@
             this.PagAsistencias.Controls.Add(this.lbl_IdAsis);
             this.PagAsistencias.Controls.Add(this.btn_LimpiezaAsis);
             this.PagAsistencias.Controls.Add(this.dateTimePicker1);
-            this.PagAsistencias.Controls.Add(this.lbl_Presente);
             this.PagAsistencias.Controls.Add(this.btnEliminarAsi);
             this.PagAsistencias.Controls.Add(this.lbl_MensajeAsi);
             this.PagAsistencias.Controls.Add(this.txt_docAlu);
@@ -235,6 +252,58 @@
             this.PagAsistencias.TabIndex = 1;
             this.PagAsistencias.Text = "Asistencias";
             this.PagAsistencias.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.radioButton_No);
+            this.groupBox1.Controls.Add(this.radioButton_Si);
+            this.groupBox1.Location = new System.Drawing.Point(19, 168);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(100, 71);
+            this.groupBox1.TabIndex = 34;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Presente";
+            // 
+            // radioButton_No
+            // 
+            this.radioButton_No.AutoSize = true;
+            this.radioButton_No.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.radioButton_No.Location = new System.Drawing.Point(15, 42);
+            this.radioButton_No.Name = "radioButton_No";
+            this.radioButton_No.Size = new System.Drawing.Size(39, 17);
+            this.radioButton_No.TabIndex = 1;
+            this.radioButton_No.TabStop = true;
+            this.radioButton_No.Text = "No";
+            this.radioButton_No.UseVisualStyleBackColor = true;
+            // 
+            // radioButton_Si
+            // 
+            this.radioButton_Si.AutoSize = true;
+            this.radioButton_Si.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.radioButton_Si.Location = new System.Drawing.Point(15, 19);
+            this.radioButton_Si.Name = "radioButton_Si";
+            this.radioButton_Si.Size = new System.Drawing.Size(34, 17);
+            this.radioButton_Si.TabIndex = 0;
+            this.radioButton_Si.TabStop = true;
+            this.radioButton_Si.Text = "Si";
+            this.radioButton_Si.UseVisualStyleBackColor = true;
+            // 
+            // txt_IdAsis
+            // 
+            this.txt_IdAsis.Location = new System.Drawing.Point(19, 45);
+            this.txt_IdAsis.Name = "txt_IdAsis";
+            this.txt_IdAsis.Size = new System.Drawing.Size(100, 20);
+            this.txt_IdAsis.TabIndex = 33;
+            // 
+            // lbl_IdAsis
+            // 
+            this.lbl_IdAsis.AutoSize = true;
+            this.lbl_IdAsis.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_IdAsis.Location = new System.Drawing.Point(16, 25);
+            this.lbl_IdAsis.Name = "lbl_IdAsis";
+            this.lbl_IdAsis.Size = new System.Drawing.Size(52, 17);
+            this.lbl_IdAsis.TabIndex = 32;
+            this.lbl_IdAsis.Text = "Codigo";
             // 
             // btn_LimpiezaAsis
             // 
@@ -254,28 +323,6 @@
             this.dateTimePicker1.Name = "dateTimePicker1";
             this.dateTimePicker1.Size = new System.Drawing.Size(87, 20);
             this.dateTimePicker1.TabIndex = 30;
-            // 
-            // lbl_Presente
-            // 
-            this.lbl_Presente.AutoSize = true;
-            this.lbl_Presente.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_Presente.Location = new System.Drawing.Point(251, 346);
-            this.lbl_Presente.Name = "lbl_Presente";
-            this.lbl_Presente.Size = new System.Drawing.Size(65, 17);
-            this.lbl_Presente.TabIndex = 28;
-            this.lbl_Presente.Text = "Presente";
-            // 
-            // radioButton_Si
-            // 
-            this.radioButton_Si.AutoSize = true;
-            this.radioButton_Si.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.radioButton_Si.Location = new System.Drawing.Point(15, 19);
-            this.radioButton_Si.Name = "radioButton_Si";
-            this.radioButton_Si.Size = new System.Drawing.Size(34, 17);
-            this.radioButton_Si.TabIndex = 0;
-            this.radioButton_Si.TabStop = true;
-            this.radioButton_Si.Text = "Si";
-            this.radioButton_Si.UseVisualStyleBackColor = true;
             // 
             // btnEliminarAsi
             // 
@@ -354,55 +401,17 @@
             this.lbl_docAlu.TabIndex = 6;
             this.lbl_docAlu.Text = "DNI Alumno";
             // 
-            // txt_IdAsis
+            // epv_DniAlumno
             // 
-            this.txt_IdAsis.Location = new System.Drawing.Point(19, 45);
-            this.txt_IdAsis.Name = "txt_IdAsis";
-            this.txt_IdAsis.Size = new System.Drawing.Size(100, 20);
-            this.txt_IdAsis.TabIndex = 33;
+            this.epv_DniAlumno.ContainerControl = this;
             // 
-            // lbl_IdAsis
+            // epv_DniAlumnoAsi
             // 
-            this.lbl_IdAsis.AutoSize = true;
-            this.lbl_IdAsis.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_IdAsis.Location = new System.Drawing.Point(16, 25);
-            this.lbl_IdAsis.Name = "lbl_IdAsis";
-            this.lbl_IdAsis.Size = new System.Drawing.Size(21, 17);
-            this.lbl_IdAsis.TabIndex = 32;
-            this.lbl_IdAsis.Text = "ID";
+            this.epv_DniAlumnoAsi.ContainerControl = this;
             // 
-            // btn_LimpiezaAlu
+            // epv_IdAsis
             // 
-            this.btn_LimpiezaAlu.Image = global::AlumnosAsistencia.Properties.Resources.icons8_clear_24;
-            this.btn_LimpiezaAlu.Location = new System.Drawing.Point(16, 18);
-            this.btn_LimpiezaAlu.Name = "btn_LimpiezaAlu";
-            this.btn_LimpiezaAlu.Size = new System.Drawing.Size(38, 23);
-            this.btn_LimpiezaAlu.TabIndex = 32;
-            this.btn_LimpiezaAlu.UseVisualStyleBackColor = true;
-            this.btn_LimpiezaAlu.Click += new System.EventHandler(this.btn_LimpiezaAlu_Click);
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.radioButton_No);
-            this.groupBox1.Controls.Add(this.radioButton_Si);
-            this.groupBox1.Location = new System.Drawing.Point(19, 168);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(100, 71);
-            this.groupBox1.TabIndex = 34;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Presente";
-            // 
-            // radioButton_No
-            // 
-            this.radioButton_No.AutoSize = true;
-            this.radioButton_No.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.radioButton_No.Location = new System.Drawing.Point(15, 42);
-            this.radioButton_No.Name = "radioButton_No";
-            this.radioButton_No.Size = new System.Drawing.Size(39, 17);
-            this.radioButton_No.TabIndex = 1;
-            this.radioButton_No.TabStop = true;
-            this.radioButton_No.Text = "No";
-            this.radioButton_No.UseVisualStyleBackColor = true;
+            this.epv_IdAsis.ContainerControl = this;
             // 
             // FormAdmAsisAlu
             // 
@@ -411,16 +420,19 @@
             this.ClientSize = new System.Drawing.Size(557, 450);
             this.Controls.Add(this.tabControl1);
             this.Name = "FormAdmAsisAlu";
-            this.Text = "FormAdmAsisAlu";
+            this.Text = "Asitencia Alumnos";
             this.tabControl1.ResumeLayout(false);
             this.PagAlumnos.ResumeLayout(false);
             this.PagAlumnos.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Alumnos)).EndInit();
             this.PagAsistencias.ResumeLayout(false);
             this.PagAsistencias.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgv_Asistencias)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_Asistencias)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.epv_DniAlumno)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.epv_DniAlumnoAsi)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.epv_IdAsis)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -451,7 +463,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lbl_MensajeAsi;
         private System.Windows.Forms.Button btnEliminarAsi;
-        private System.Windows.Forms.Label lbl_Presente;
         private System.Windows.Forms.DateTimePicker dateTimePicker1;
         private System.Windows.Forms.Button btn_LimpiezaAlu;
         private System.Windows.Forms.Button btn_LimpiezaAsis;
@@ -459,5 +470,8 @@
         private System.Windows.Forms.Label lbl_IdAsis;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RadioButton radioButton_No;
+        private System.Windows.Forms.ErrorProvider epv_DniAlumno;
+        private System.Windows.Forms.ErrorProvider epv_DniAlumnoAsi;
+        private System.Windows.Forms.ErrorProvider epv_IdAsis;
     }
 }

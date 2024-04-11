@@ -22,5 +22,10 @@ namespace Negocio
         {
             return objDatosAlus.listadoAlumnos(cual);
         }
+
+        public bool ExisteDniAlumno(string documentoAlu)
+        {
+            return objDatosAlus.ExisteDniAlumno(documentoAlu);
+        }
     }
 }

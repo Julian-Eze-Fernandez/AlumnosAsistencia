@@ -85,5 +85,29 @@ namespace Datos
 
             return ds;
         }
+
+        public bool ExisteDniAlumno(string documentoAlu)
+        {
+            string consulta = "SELECT COUNT(*) FROM alumnos WHERE documento = @documentoAlu";
+            SqlCommand cmd = new SqlCommand(consulta, conexion);
+            cmd.Parameters.AddWithValue("@documentoAlu", documentoAlu);
+
+            try
+            {
+                AbrirConexion();
+                int count = (int)cmd.ExecuteScalar(); // Obtenemos el resultado del conteo de filas
+                return count > 0; // Devolvemos true si el código de socio existe en la tabla
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error al verificar la existencia del DNI del Alumno.", e);
+            }
+            finally
+            {
+                CerrarConexion();
+                cmd.Dispose();
+            }
+        }
+
     }
 }

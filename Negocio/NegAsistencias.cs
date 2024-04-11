@@ -28,5 +28,10 @@ namespace Negocio
         {
             return objDatosAsis.ExisteDniAlumno(documentoAlu);
         }
+
+        public bool ExisteIdAsistencia(string idAsis)
+        {
+            return objDatosAsis.ExisteIdAsistencia(idAsis);
+        }
     }
 }

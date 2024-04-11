@@ -120,21 +120,34 @@ namespace AsistenciaAlumnos
         {
             int nGrabados = -1;
 
-            //llamamos al método que carga los datos del objeto
-            TxtBox_a_objAlu();
+            string documentoAlu = txt_Documento.Text;
 
-            nGrabados = objNegAlu.abmAlumnos("Alta", objEntAlu);
+            if (AlumnosCamposNoVacios() && DocumentoAlumnoNoCaracteres())
+            {
+                if (objNegAlu.ExisteDniAlumno(documentoAlu))
+                {
+                    MessageBox.Show(this, "Error", "El Alumno ya existe.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    //llamamos al método que carga los datos del objeto
+                    TxtBox_a_objAlu();
 
-            if (nGrabados == -1)
-            {
-                lbl_Mensaje.Text = "No se pudo cargar Alumnos en el sistema.";
-            }
-            else
-            {
-                lbl_Mensaje.Text = "Se cargo el Alumno con éxito.";
-                LlenarDGVAlu();
-                LimpiarDGVAlu();
-            }
+                    nGrabados = objNegAlu.abmAlumnos("Alta", objEntAlu);
+
+                    if (nGrabados == -1)
+                    {
+                        lbl_Mensaje.Text = "No se pudo cargar Alumnos en el sistema.";
+                    }
+                    else
+                    {
+                        lbl_Mensaje.Text = "Se cargo el Alumno con éxito.";
+                        LlenarDGVAlu();
+                        LimpiarDGVAlu();
+                    }
+                }
+
+            } 
         }
         private void btn_ModificarAlu_Click(object sender, EventArgs e)
         {
@@ -144,14 +157,14 @@ namespace AsistenciaAlumnos
 
             if (nResultado != -1)
             {
-                MessageBox.Show("Aviso", "El Alumno fue Modificado con exito.");
+                MessageBox.Show("El Alumno fue Modificado con exito.", "Aviso");
                 LimpiarDGVAlu();
                 LlenarDGVAlu();
                 txt_Documento.Enabled = true;
             }
             else
             {
-                MessageBox.Show("Error", "Se produjo un error al intentar modificar el alumno.");
+                MessageBox.Show("Se produjo un error al intentar modificar el alumno.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         private void btn_EliminarAlu_Click(object sender, EventArgs e)
@@ -161,9 +174,12 @@ namespace AsistenciaAlumnos
             {
                 int nGrabados = -1;
                 Alumno NuevoAlumno = new Alumno(int.Parse(txt_Documento.Text), txt_Apellido.Text, txt_Nombre.Text);
+
                 nGrabados = objNegAlu.abmAlumnos("Borrar", NuevoAlumno);
                 LlenarDGVAlu();
                 LimpiarDGVAlu();
+
+                txt_Documento.Enabled=true;
 
             }
         }
@@ -230,6 +246,7 @@ namespace AsistenciaAlumnos
             dateTimePicker1.Value = DateTime.Today;
             radioButton_Si.Checked = false;
             btn_CargarAsis.Visible = true;
+            epv_DniAlumnoAsi.Clear();
         }
 
         private void btn_CargarAsis_Click(object sender, EventArgs e)
@@ -265,31 +282,43 @@ namespace AsistenciaAlumnos
             int nGrabados = -1;
 
             string documentoAlu = txt_docAlu.Text;
+            string idAsis = txt_IdAsis.Text;
 
-            if (objNegAsi.ExisteDniAlumno(documentoAlu))
+            if (AsistenciaCamposNoVacios() && DocumentoAlumnoAsistenciaNoCaracteres())
             {
-                // Formatear la fecha en el formato esperado por la base de datos
-                string fechaFormateada = dateTimePicker1.Value.ToString("yyyy-MM-dd HH:mm:ss");
-
-                // Crear el objeto Asistencia
-                Asistencia NuevaAsistencia = new Asistencia(int.Parse(txt_IdAsis.Text) , int.Parse(txt_docAlu.Text), DateTime.Parse(fechaFormateada), radioButton_Si.Checked);
-
-                nGrabados = objNegAsi.abmAsistencias("Alta", NuevaAsistencia);
-
-                if (nGrabados == -1)
+                if (objNegAsi.ExisteIdAsistencia(idAsis))
                 {
-                    lbl_MensajeAsi.Text = "No se pudo cargar Alumnos en el sistema.";
+                    epv_DniAlumnoAsi.SetError(txt_IdAsis, "Ya existe este codigo de asistencia.");
                 }
                 else
                 {
-                    lbl_MensajeAsi.Text = "Se cargo el Alumno con éxito.";
-                    LlenarDGVAsis();
-                    LimpiarDGVAsis();
+                    if (objNegAsi.ExisteDniAlumno(documentoAlu))
+                    {
+                        // Formatear la fecha en el formato esperado por la base de datos
+                        string fechaFormateada = dateTimePicker1.Value.ToString("yyyy-MM-dd HH:mm:ss");
+
+                        // Crear el objeto Asistencia
+                        Asistencia NuevaAsistencia = new Asistencia(int.Parse(txt_IdAsis.Text), int.Parse(txt_docAlu.Text), DateTime.Parse(fechaFormateada), radioButton_Si.Checked);
+
+                        nGrabados = objNegAsi.abmAsistencias("Alta", NuevaAsistencia);
+
+                        if (nGrabados == -1)
+                        {
+                            lbl_MensajeAsi.Text = "No se pudo cargar Alumnos en el sistema.";
+                        }
+                        else
+                        {
+                            lbl_MensajeAsi.Text = "Se cargo el Alumno con éxito.";
+                            LlenarDGVAsis();
+                            LimpiarDGVAsis();
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("El DNI ingresado no existe.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
-            }
-            else
-            {
-                MessageBox.Show("El DNI ingresado no existe.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                
             }
         }
         private void btn_ModificarAsis_Click(object sender, EventArgs e)
@@ -340,6 +369,115 @@ namespace AsistenciaAlumnos
 
         }
 
+        //Validaciones
+        private bool AlumnosCamposNoVacios()
+        {
+            // Agrega todos los campos que deseas validar aquí.
+            Control[] campos = { txt_Documento, txt_Apellido, txt_Nombre };
 
+            foreach (Control campo in campos)
+            {
+                if (campo is TextBox textBox)
+                {
+                    if (string.IsNullOrEmpty(textBox.Text))
+                    {
+                        MessageBox.Show(this, "Por favor, complete todos los campos.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false; // Al menos un campo está vacío, la validación falla.
+                    }
+                }
+                else if (campo is ComboBox comboBox)
+                {
+                    if (comboBox.SelectedIndex == -1)
+                    {
+                        MessageBox.Show(this, "Por favor, seleccione una opción en todos los campos.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false; // Al menos un campo está sin selección, la validación falla.
+                    }
+                }
+            }
+
+            return true; // Todos los campos están completos, la validación pasa.
+        }
+        private bool DocumentoAlumnoNoCaracteres()
+        {
+            TextBox[] campos = { txt_Documento };
+
+            foreach (TextBox campo in campos)
+            {
+                if (!EsNumero(campo.Text))
+                {
+                    //MessageBox.Show(this, "Por favor, numeros en el monto.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    epv_DniAlumno.SetError(txt_Documento, "No se aceptan caracteres en este campo.");
+                    return false; // Devuelve false si al menos uno de los campos contiene caracteres no numéricos.
+                }
+            }
+
+            return true; // Devuelve true si ambos campos solo contienen números.
+        }
+        private bool DocumentoAlumnoAsistenciaNoCaracteres()
+        {
+            TextBox[] campos = { txt_docAlu };
+
+            foreach (TextBox campo in campos)
+            {
+                if (!EsNumero(campo.Text))
+                {
+                    //MessageBox.Show(this, "Por favor, numeros en el monto.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    epv_DniAlumnoAsi.SetError(txt_docAlu, "No se aceptan caracteres en este campo.");
+                    return false; // Devuelve false si al menos uno de los campos contiene caracteres no numéricos.
+                }
+            }
+
+            return true; // Devuelve true si ambos campos solo contienen números.
+        }
+
+        private bool EsNumero(string texto)
+        {
+            foreach (char caracter in texto)
+            {
+                if (!char.IsDigit(caracter))
+                {
+                    return false; // Devuelve false si encuentra un carácter no numérico.
+                }
+            }
+
+            return true; // Devuelve true si todos los caracteres son numéricos.
+        }
+        private void txt_Documento_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!(char.IsNumber(e.KeyChar)) && (e.KeyChar != (char)Keys.Back))
+            {
+                epv_DniAlumno.SetError(txt_Documento, "Solo se permiten numero.");
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private bool AsistenciaCamposNoVacios()
+        {
+            // Agrega todos los campos que deseas validar aquí.
+            Control[] campos = { txt_IdAsis, txt_docAlu, dateTimePicker1, radioButton_Si, radioButton_No };
+
+            foreach (Control campo in campos)
+            {
+                if (campo is TextBox textBox)
+                {
+                    if (string.IsNullOrEmpty(textBox.Text))
+                    {
+                        MessageBox.Show(this, "Por favor, complete todos los campos.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false; // Al menos un campo está vacío, la validación falla.
+                    }
+                }
+                else if (campo is ComboBox comboBox)
+                {
+                    if (comboBox.SelectedIndex == -1)
+                    {
+                        MessageBox.Show(this, "Por favor, seleccione una opción en todos los campos.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false; // Al menos un campo está sin selección, la validación falla.
+                    }
+                }
+            }
+
+            return true; // Todos los campos están completos, la validación pasa.
+        }
     }
 }
