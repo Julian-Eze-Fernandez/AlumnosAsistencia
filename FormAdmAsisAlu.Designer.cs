@@ -127,22 +127,26 @@
             // 
             // btn_Activar
             // 
+            this.btn_Activar.BackColor = System.Drawing.Color.PaleGreen;
+            this.btn_Activar.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_Activar.Location = new System.Drawing.Point(324, 70);
             this.btn_Activar.Name = "btn_Activar";
             this.btn_Activar.Size = new System.Drawing.Size(28, 23);
             this.btn_Activar.TabIndex = 34;
             this.btn_Activar.Text = "A";
-            this.btn_Activar.UseVisualStyleBackColor = true;
+            this.btn_Activar.UseVisualStyleBackColor = false;
             this.btn_Activar.Click += new System.EventHandler(this.btn_Activar_Click);
             // 
             // btn_Baja
             // 
+            this.btn_Baja.BackColor = System.Drawing.Color.Crimson;
+            this.btn_Baja.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_Baja.Location = new System.Drawing.Point(290, 70);
             this.btn_Baja.Name = "btn_Baja";
             this.btn_Baja.Size = new System.Drawing.Size(28, 23);
             this.btn_Baja.TabIndex = 33;
             this.btn_Baja.Text = "B";
-            this.btn_Baja.UseVisualStyleBackColor = true;
+            this.btn_Baja.UseVisualStyleBackColor = false;
             this.btn_Baja.Click += new System.EventHandler(this.btn_Baja_Click);
             // 
             // btn_LimpiezaAlu
@@ -186,32 +190,37 @@
             // 
             // btn_EliminarAlu
             // 
+            this.btn_EliminarAlu.BackColor = System.Drawing.Color.Transparent;
             this.btn_EliminarAlu.Location = new System.Drawing.Point(209, 70);
             this.btn_EliminarAlu.Name = "btn_EliminarAlu";
             this.btn_EliminarAlu.Size = new System.Drawing.Size(75, 23);
             this.btn_EliminarAlu.TabIndex = 17;
             this.btn_EliminarAlu.Text = "Eliminar";
-            this.btn_EliminarAlu.UseVisualStyleBackColor = true;
+            this.btn_EliminarAlu.UseVisualStyleBackColor = false;
             this.btn_EliminarAlu.Click += new System.EventHandler(this.btn_EliminarAlu_Click);
             // 
             // btn_ModificarAlu
             // 
+            this.btn_ModificarAlu.BackColor = System.Drawing.Color.Transparent;
             this.btn_ModificarAlu.Location = new System.Drawing.Point(113, 70);
             this.btn_ModificarAlu.Name = "btn_ModificarAlu";
             this.btn_ModificarAlu.Size = new System.Drawing.Size(75, 23);
             this.btn_ModificarAlu.TabIndex = 16;
             this.btn_ModificarAlu.Text = "Modificar";
-            this.btn_ModificarAlu.UseVisualStyleBackColor = true;
+            this.btn_ModificarAlu.UseVisualStyleBackColor = false;
             this.btn_ModificarAlu.Click += new System.EventHandler(this.btn_ModificarAlu_Click);
             // 
             // btn_CargarAlu
             // 
+            this.btn_CargarAlu.BackColor = System.Drawing.Color.Transparent;
+            this.btn_CargarAlu.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.btn_CargarAlu.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btn_CargarAlu.Location = new System.Drawing.Point(16, 70);
             this.btn_CargarAlu.Name = "btn_CargarAlu";
             this.btn_CargarAlu.Size = new System.Drawing.Size(75, 23);
             this.btn_CargarAlu.TabIndex = 15;
             this.btn_CargarAlu.Text = "Cargar";
-            this.btn_CargarAlu.UseVisualStyleBackColor = true;
+            this.btn_CargarAlu.UseVisualStyleBackColor = false;
             this.btn_CargarAlu.Click += new System.EventHandler(this.btn_CargarAlu_Click);
             // 
             // dgv_Alumnos
@@ -471,8 +480,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.ClientSize = new System.Drawing.Size(484, 469);
             this.Controls.Add(this.tabControl1);
+            this.ForeColor = System.Drawing.SystemColors.ControlText;
             this.Name = "FormAdmAsisAlu";
             this.Text = "Asitencia Alumnos";
             this.tabControl1.ResumeLayout(false);
