@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Entidades;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
 using Negocio;
 
 namespace AsistenciaAlumnos
@@ -19,41 +22,45 @@ namespace AsistenciaAlumnos
         public Asistencia objEntAsi = new Asistencia();
         public NegAsistencias objNegAsi = new NegAsistencias();
 
-
         public FormAdmAsisAlu()
         {
             InitializeComponent();
             CrearDGVs();
             LlenarDGVAlu();
             LlenarDGVAsis();
+            LlenarCombos();
+            LimpiarDGVAsis();
         }
 
         private void CrearDGVs()
         {
             #region DgvAlumnos
             //Creacion DGV Alumnos
-            dgv_Alumnos.ColumnCount = 3;
+            dgv_Alumnos.ColumnCount = 4;
             dgv_Alumnos.Columns[0].HeaderText = "DNI";
             dgv_Alumnos.Columns[1].HeaderText = "Apellido";
             dgv_Alumnos.Columns[2].HeaderText = "Nombre";
+            dgv_Alumnos.Columns[3].HeaderText = "Activo";
 
             dgv_Alumnos.Columns[0].Width = 100;
             dgv_Alumnos.Columns[1].Width = 100;
             dgv_Alumnos.Columns[2].Width = 100;
+            dgv_Alumnos.Columns[3].Width = 50;
             #endregion
 
             #region DgvAsistencias
             //Creacion DGV Asistencias
             dgv_Asistencias.ColumnCount = 4;
-            dgv_Asistencias.Columns[0].HeaderText = "idAsistencia";
-            dgv_Asistencias.Columns[1].HeaderText = "DNI";
-            dgv_Asistencias.Columns[2].HeaderText = "Fecha";
-            dgv_Asistencias.Columns[3].HeaderText = "Asistencia";
+            dgv_Asistencias.Columns[0].HeaderText = "DNI";
+            dgv_Asistencias.Columns[1].HeaderText = "Fecha";
+            dgv_Asistencias.Columns[2].HeaderText = "Asistencia";
 
             dgv_Asistencias.Columns[0].Width = 100;
             dgv_Asistencias.Columns[1].Width = 100;
             dgv_Asistencias.Columns[2].Width = 100;
-            dgv_Asistencias.Columns[3].Width = 100;
+
+            lbl_fechaNueva.Visible = false;
+            dateTimePicker2.Visible = false;
             #endregion
         }
         private void LlenarDGVAlu()
@@ -69,7 +76,7 @@ namespace AsistenciaAlumnos
             {
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    dgv_Alumnos.Rows.Add(dr[0].ToString(), dr[1].ToString(), dr[2].ToString());
+                    dgv_Alumnos.Rows.Add(dr[1].ToString(), dr[2].ToString(), dr[3].ToString(), dr[4].ToString());
                 }
             }
             else
@@ -85,6 +92,7 @@ namespace AsistenciaAlumnos
             objEntAlu.Documento = int.Parse(txt_Documento.Text);
             objEntAlu.Apellido = txt_Apellido.Text;
             objEntAlu.Nombre = txt_Nombre.Text;
+            objEntAlu.Activo = Convert.ToChar("S");
         }
         private void Ds_a_TxtBoxAlu(DataSet ds)
         {
@@ -114,6 +122,7 @@ namespace AsistenciaAlumnos
             txt_Apellido.Text = string.Empty;
             txt_Nombre.Text = string.Empty;
             btn_CargarAlu.Visible = true;
+            epv_DniAlumno.Clear();
         }
 
         private void btn_CargarAlu_Click(object sender, EventArgs e)
@@ -122,11 +131,11 @@ namespace AsistenciaAlumnos
 
             string documentoAlu = txt_Documento.Text;
 
-            if (AlumnosCamposNoVacios() && DocumentoAlumnoNoCaracteres())
+            if (AlumnosCamposNoVacios())
             {
                 if (objNegAlu.ExisteDniAlumno(documentoAlu))
                 {
-                    MessageBox.Show(this, "Error", "El Alumno ya existe.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(this, "El Alumno ya existe.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else
                 {
@@ -144,6 +153,7 @@ namespace AsistenciaAlumnos
                         lbl_Mensaje.Text = "Se cargo el Alumno con éxito.";
                         LlenarDGVAlu();
                         LimpiarDGVAlu();
+                        LlenarCombos();
                     }
                 }
 
@@ -160,6 +170,7 @@ namespace AsistenciaAlumnos
                 MessageBox.Show("El Alumno fue Modificado con exito.", "Aviso");
                 LimpiarDGVAlu();
                 LlenarDGVAlu();
+                LlenarCombos();
                 txt_Documento.Enabled = true;
             }
             else
@@ -169,18 +180,61 @@ namespace AsistenciaAlumnos
         }
         private void btn_EliminarAlu_Click(object sender, EventArgs e)
         {
+            string asistenciaAlu = txt_Documento.Text; 
             DialogResult resultado = MessageBox.Show("¿Está seguro que desea eliminar el alumno con DNI " + int.Parse(txt_Documento.Text) + "?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (resultado == DialogResult.Yes)
+            {
+                if (objNegAsi.ExisteAsistencia(asistenciaAlu))
+                {
+                    MessageBox.Show(this, "El alumno cuenta con asistencias cargadas.", "Error", MessageBoxButtons.OK , MessageBoxIcon.Error);
+
+                }
+                else
+                {
+                    int nGrabados = -1;
+                    Alumno NuevoAlumno = new Alumno(int.Parse(txt_Documento.Text), txt_Apellido.Text, txt_Nombre.Text);
+
+                    nGrabados = objNegAlu.abmAlumnos("Borrar", NuevoAlumno);
+                    LlenarDGVAlu();
+                    LimpiarDGVAlu();
+                    LlenarCombos();
+
+                    txt_Documento.Enabled = true;
+                }            
+            }
+        }
+        private void btn_Baja_Click(object sender, EventArgs e)
+        {
+            string asistenciaAlu = txt_Documento.Text;
+            DialogResult resultado = MessageBox.Show("¿Está seguro que desea dar de baja al alumno con DNI " + int.Parse(txt_Documento.Text) + "?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (resultado == DialogResult.Yes)
             {
                 int nGrabados = -1;
                 Alumno NuevoAlumno = new Alumno(int.Parse(txt_Documento.Text), txt_Apellido.Text, txt_Nombre.Text);
 
-                nGrabados = objNegAlu.abmAlumnos("Borrar", NuevoAlumno);
+                nGrabados = objNegAlu.abmAlumnos("Baja", NuevoAlumno);
                 LlenarDGVAlu();
                 LimpiarDGVAlu();
+                LlenarCombos();
 
-                txt_Documento.Enabled=true;
+                txt_Documento.Enabled = true;
+            }
+        }
+        private void btn_Activar_Click(object sender, EventArgs e)
+        {
+            string asistenciaAlu = txt_Documento.Text;
+            DialogResult resultado = MessageBox.Show("¿Está seguro que desea dar de baja al alumno con DNI " + int.Parse(txt_Documento.Text) + "?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (resultado == DialogResult.Yes)
+            {
+                int nGrabados = -1;
+                Alumno NuevoAlumno = new Alumno(int.Parse(txt_Documento.Text), txt_Apellido.Text, txt_Nombre.Text);
 
+                nGrabados = objNegAlu.abmAlumnos("Activar", NuevoAlumno);
+                LlenarDGVAlu();
+                LimpiarDGVAlu();
+                LlenarCombos();
+
+                txt_Documento.Enabled = true;
             }
         }
         private void btn_LimpiezaAlu_Click(object sender, EventArgs e)
@@ -204,7 +258,7 @@ namespace AsistenciaAlumnos
             {
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    dgv_Asistencias.Rows.Add(dr[0].ToString(), dr[1].ToString(), dr[2].ToString(), dr[3].ToString());
+                    dgv_Asistencias.Rows.Add(dr[1].ToString(), dr[2].ToString(), dr[3].ToString());
                 }
             }
             else
@@ -212,138 +266,128 @@ namespace AsistenciaAlumnos
                 lbl_Mensaje.Text = "No hay se encuentran cargadas las asistencias en el sistema.";
             }
         }
+        private void LlenarCombos()
+        {
+            cmb_docAlu.DataSource = objNegAlu.ObtenerAlumnos(); // Asignar la lista de enteros al DataSource directamente
+        }
         private void Ds_a_TxtBoxAsis(DataSet ds)
         {
-            txt_IdAsis.Text = ds.Tables[0].Rows[0]["idAsistencia"].ToString();
-            txt_docAlu.Text = ds.Tables[0].Rows[0]["docAlumno"].ToString();
+            dateTimePicker2.Visible = true;
+            lbl_fechaNueva.Visible = true;
+
+            cmb_docAlu.Text = ds.Tables[0].Rows[0]["docAlumno"].ToString();
             dateTimePicker1.Value = (DateTime)ds.Tables[0].Rows[0]["Fecha"];
             radioButton_Si.Checked = (bool)ds.Tables[0].Rows[0]["Presente"];
+            dateTimePicker2.Value = (DateTime)ds.Tables[0].Rows[0]["Fecha"];
 
-            txt_IdAsis.Enabled = false;
-            txt_docAlu.Enabled = false;
+            dateTimePicker1.Visible = false;
+            lbl_fecha.Visible = false;
         }
         private void dgv_Asistencias_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
             {
-                string idAsis = dgv_Asistencias.CurrentRow.Cells[0].Value.ToString();
-                string documentoAlu = dgv_Asistencias.CurrentRow.Cells[1].Value.ToString();
-                DateTime fecha = Convert.ToDateTime(dgv_Asistencias.CurrentRow.Cells[2].Value);
+                string documentoAlu = dgv_Asistencias.CurrentRow.Cells[0].Value.ToString();
+                DateTime fecha = Convert.ToDateTime(dgv_Asistencias.CurrentRow.Cells[1].Value);
                 DataSet ds = objNegAsi.listadoAsistencias(documentoAlu, fecha);
+                DateTime nuevaFecha = Convert.ToDateTime(dgv_Asistencias.CurrentRow.Cells[1].Value);
 
                 if (ds.Tables[0].Rows.Count > 0)
                 {
                     Ds_a_TxtBoxAsis(ds);
                     btn_CargarAsis.Visible = false;
+                    cmb_docAlu.Enabled = false;
                     lbl_MensajeAsi.Text = string.Empty;
                 }
             }
         }
         private void LimpiarDGVAsis()
         {
-            txt_IdAsis.Text = string.Empty;
-            txt_docAlu.Text = string.Empty;
+            cmb_docAlu.SelectedIndex = -1;
             dateTimePicker1.Value = DateTime.Today;
             radioButton_Si.Checked = false;
             btn_CargarAsis.Visible = true;
             epv_DniAlumnoAsi.Clear();
-        }
 
+            lbl_fecha.Visible = true;
+            dateTimePicker1.Visible = true;
+            cmb_docAlu.Enabled = true;
+
+            lbl_fechaNueva.Visible = false;
+            dateTimePicker2.Visible = false;
+        }
         private void btn_CargarAsis_Click(object sender, EventArgs e)
         {
-            #region CargaVieja
-            //int nGrabados = -1;
-
-            //string documentoAlu = txt_docAlu.Text;
-
-            //if (objNegAsi.ExisteDniAlumno(documentoAlu))
-            //{
-            //    Asistencia NuevaAsistencia = new Asistencia(int.Parse(txt_docAlu.Text), dateTimePicker1.Value, radioButton_Si.Checked);
-
-            //    nGrabados = objNegAsi.abmAsistencias("Alta", NuevaAsistencia);
-
-            //    if (nGrabados == -1)
-            //    {
-            //        lbl_MensajeAsi.Text = "No se pudo cargar Alumnos en el sistema.";
-            //    }
-            //    else
-            //    {
-            //        lbl_MensajeAsi.Text = "Se cargo el Alumno con éxito.";
-            //        LlenarDGVAsis();
-            //        LimpiarDGVAsis();
-            //    }
-            //}
-            //else
-            //{
-            //    MessageBox.Show("El DNI ingresado no existe.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //}
-            #endregion
-
             int nGrabados = -1;
 
-            string documentoAlu = txt_docAlu.Text;
-            string idAsis = txt_IdAsis.Text;
+            string documentoAlu = cmb_docAlu.Text;
+            DateTime fecha = dateTimePicker1.Value.Date;
 
-            if (AsistenciaCamposNoVacios() && DocumentoAlumnoAsistenciaNoCaracteres())
+            if (AsistenciaCamposNoVacios())
             {
-                if (objNegAsi.ExisteIdAsistencia(idAsis))
+                if (objNegAsi.ExisteDniAlumno(documentoAlu))
                 {
-                    epv_DniAlumnoAsi.SetError(txt_IdAsis, "Ya existe este codigo de asistencia.");
-                }
-                else
-                {
-                    if (objNegAsi.ExisteDniAlumno(documentoAlu))
+                    if (objNegAsi.ExisteAsistenciaFecha(int.Parse(documentoAlu), fecha))
                     {
-                        // Formatear la fecha en el formato esperado por la base de datos
-                        string fechaFormateada = dateTimePicker1.Value.ToString("yyyy-MM-dd HH:mm:ss");
+                        MessageBox.Show("Ya existe una asistencia registrada para este alumno en la fecha especificada.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
 
-                        // Crear el objeto Asistencia
-                        Asistencia NuevaAsistencia = new Asistencia(int.Parse(txt_IdAsis.Text), int.Parse(txt_docAlu.Text), DateTime.Parse(fechaFormateada), radioButton_Si.Checked);
+                    string fechaFormateada = fecha.ToString("yyyy-MM-dd HH:mm:ss");
+                    Asistencia nuevaAsistencia = new Asistencia(int.Parse(cmb_docAlu.Text), DateTime.Parse(fechaFormateada), radioButton_Si.Checked);
 
-                        nGrabados = objNegAsi.abmAsistencias("Alta", NuevaAsistencia);
+                    nGrabados = objNegAsi.abmAsistencias("Alta", nuevaAsistencia);
 
-                        if (nGrabados == -1)
-                        {
-                            lbl_MensajeAsi.Text = "No se pudo cargar Alumnos en el sistema.";
-                        }
-                        else
-                        {
-                            lbl_MensajeAsi.Text = "Se cargo el Alumno con éxito.";
-                            LlenarDGVAsis();
-                            LimpiarDGVAsis();
-                        }
+                    if (nGrabados == -1)
+                    {
+                        lbl_MensajeAsi.Text = "No se pudo cargar la asistencia en el sistema.";
                     }
                     else
                     {
-                        MessageBox.Show("El DNI ingresado no existe.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        lbl_MensajeAsi.Text = "Se cargó la asistencia con éxito.";
+                        LlenarDGVAsis();
+                        LimpiarDGVAsis();
                     }
                 }
-                
+                else
+                {
+                    MessageBox.Show("El DNI ingresado no existe.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
+
         private void btn_ModificarAsis_Click(object sender, EventArgs e)
         {
             int nResultado = -1;
             // Obtener la fecha del DateTimePicker en el formato esperado por la base de datos
-            DateTime fecha = dateTimePicker1.Value.Date; // Obtiene solo la parte de la fecha, sin la parte de la hora
-            Asistencia NuevaAsistencia = new Asistencia( int.Parse(txt_IdAsis.Text), int.Parse(txt_docAlu.Text), fecha, radioButton_Si.Checked);
-
-            DateTime nuevaFecha = fecha;
-            nResultado = objNegAsi.abmAsistencias("Modificar", NuevaAsistencia); //invocar a la capa de negocio
-
-            if (nResultado != -1)
+            //Asistencia NuevaAsistencia = new Asistencia(int.Parse(txt_docAlu.Text), fecha, radioButton_Si.Checked);
+            Asistencia NuevaAsistencia = new Asistencia(int.Parse(cmb_docAlu.Text), dateTimePicker1.Value, radioButton_Si.Checked);
+            string documentoAlu = cmb_docAlu.Text;
+            DateTime nuevaFecha = dateTimePicker2.Value; // Obtiene solo la parte de la fecha, sin la parte de la hora
+            //DateTime nuevaFecha = fecha;
+            if (objNegAsi.ExisteAsistenciaFecha(int.Parse(documentoAlu), nuevaFecha))
             {
-                MessageBox.Show("La cuota fue Modificada con éxito", "Aviso");
-                LimpiarDGVAsis();
-                LlenarDGVAsis();
-
-                txt_docAlu.Enabled = true;
-                txt_IdAsis.Enabled = true;
+                MessageBox.Show("Ya existe una asistencia registrada para este alumno en la fecha especificada.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
             else
             {
-                MessageBox.Show("Se produjo un error al intentar modificar la cuota", "Error");
+                nResultado = objNegAsi.modificarAsistencias("Modificar", NuevaAsistencia, nuevaFecha); //invocar a la capa de negocio
+
+                if (nResultado != -1)
+                {
+                    MessageBox.Show("La cuota fue Modificada con éxito", "Aviso");
+                    LimpiarDGVAsis();
+                    LlenarDGVAsis();
+
+                    cmb_docAlu.Enabled = true;
+                }
+                else
+                {
+                    MessageBox.Show("Se produjo un error al intentar modificar la cuota", "Error");
+                }
             }
+            
         }
         private void btnEliminarAsi_Click(object sender, EventArgs e)
         {
@@ -353,7 +397,7 @@ namespace AsistenciaAlumnos
             if (resultado == DialogResult.Yes)
             {
                 int nGrabados = -1;
-                Asistencia NuevaAsistencia = new Asistencia(int.Parse(txt_IdAsis.Text), int.Parse(txt_docAlu.Text), fecha, radioButton_Si.Checked);
+                Asistencia NuevaAsistencia = new Asistencia(int.Parse(cmb_docAlu.Text), fecha, radioButton_Si.Checked);
 
                 nGrabados = objNegAsi.abmAsistencias("Borrar", NuevaAsistencia);
                 LlenarDGVAsis();
@@ -364,9 +408,6 @@ namespace AsistenciaAlumnos
         private void btn_LimpiezaAsis_Click(object sender, EventArgs e)
         {
             LimpiarDGVAsis();
-            txt_docAlu.Enabled = true;
-            txt_IdAsis.Enabled = true;
-
         }
 
         //Validaciones
@@ -397,39 +438,6 @@ namespace AsistenciaAlumnos
 
             return true; // Todos los campos están completos, la validación pasa.
         }
-        private bool DocumentoAlumnoNoCaracteres()
-        {
-            TextBox[] campos = { txt_Documento };
-
-            foreach (TextBox campo in campos)
-            {
-                if (!EsNumero(campo.Text))
-                {
-                    //MessageBox.Show(this, "Por favor, numeros en el monto.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    epv_DniAlumno.SetError(txt_Documento, "No se aceptan caracteres en este campo.");
-                    return false; // Devuelve false si al menos uno de los campos contiene caracteres no numéricos.
-                }
-            }
-
-            return true; // Devuelve true si ambos campos solo contienen números.
-        }
-        private bool DocumentoAlumnoAsistenciaNoCaracteres()
-        {
-            TextBox[] campos = { txt_docAlu };
-
-            foreach (TextBox campo in campos)
-            {
-                if (!EsNumero(campo.Text))
-                {
-                    //MessageBox.Show(this, "Por favor, numeros en el monto.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    epv_DniAlumnoAsi.SetError(txt_docAlu, "No se aceptan caracteres en este campo.");
-                    return false; // Devuelve false si al menos uno de los campos contiene caracteres no numéricos.
-                }
-            }
-
-            return true; // Devuelve true si ambos campos solo contienen números.
-        }
-
         private bool EsNumero(string texto)
         {
             foreach (char caracter in texto)
@@ -446,16 +454,15 @@ namespace AsistenciaAlumnos
         {
             if (!(char.IsNumber(e.KeyChar)) && (e.KeyChar != (char)Keys.Back))
             {
-                epv_DniAlumno.SetError(txt_Documento, "Solo se permiten numero.");
+                epv_DniAlumno.SetError(txt_Documento, "Solo se permiten numeros.");
                 e.Handled = true;
                 return;
             }
         }
-
         private bool AsistenciaCamposNoVacios()
         {
             // Agrega todos los campos que deseas validar aquí.
-            Control[] campos = { txt_IdAsis, txt_docAlu, dateTimePicker1, radioButton_Si, radioButton_No };
+            Control[] campos = {cmb_docAlu, dateTimePicker1, radioButton_Si, radioButton_No };
 
             foreach (Control campo in campos)
             {
@@ -476,8 +483,80 @@ namespace AsistenciaAlumnos
                     }
                 }
             }
-
             return true; // Todos los campos están completos, la validación pasa.
+        }
+        private void cmb_docAlu_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!(char.IsNumber(e.KeyChar)) && (e.KeyChar != (char)Keys.Back))
+            {
+                epv_DniAlumnoAsi.SetError(cmb_docAlu, "Solo se permiten numeros.");
+                e.Handled = true;
+                return;
+            }
+        }
+
+        //Reporte
+        private void CrearReportePdf(DataGridView dataGridView, string outputPath)
+        {
+            PdfWriter writer = new PdfWriter(outputPath);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document doc = new Document(pdf);
+
+            // Crea la tabla con las columnas que tenga el dataGridView
+            iText.Layout.Element.Table pdfTable = new iText.Layout.Element.Table(dataGridView.Columns.Count);
+
+            // Añade titulos
+            foreach (DataGridViewColumn column in dataGridView.Columns)
+            {
+                pdfTable.AddCell(new Cell().Add(new Paragraph(column.HeaderText)));
+            }
+
+
+            // Añade los datos del DataGridView
+            foreach (DataGridViewRow row in dataGridView.Rows)
+            {
+                foreach (DataGridViewCell cell in row.Cells)
+                {
+                    // Valida si es nulo
+                    if (cell != null && cell.Value != null)
+                    {
+                        pdfTable.AddCell(new Cell().Add(new Paragraph(cell.Value.ToString())));
+                    }
+                    else
+                    {
+                        // En caso de que sea null
+                        pdfTable.AddCell(new Cell().Add(new Paragraph("")));
+                    }
+                }
+            }
+
+            pdfTable.SetHorizontalAlignment(iText.Layout.Properties.HorizontalAlignment.CENTER);
+            // Añade la tabla al documento
+            doc.Add(pdfTable);
+
+            doc.Close();
+        }
+        private void btn_ReporteAlumnos_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Descargas|*.pdf";
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string outputPath = saveFileDialog.FileName;
+                CrearReportePdf(dgv_Alumnos, outputPath);
+                MessageBox.Show("Reporte generado exitosamente!");
+            }
+        }
+        private void btn_ReporteAsistencia_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Descargas|*.pdf";
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string outputPath = saveFileDialog.FileName;
+                CrearReportePdf(dgv_Asistencias, outputPath);
+                MessageBox.Show("Reporte generado exitosamente!");
+            }
         }
     }
 }

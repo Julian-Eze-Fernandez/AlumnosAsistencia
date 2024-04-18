@@ -83,6 +83,16 @@ namespace AlumnosAsistencia.Properties {
         /// <summary>
         ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap icons8_backspace_48 {
+            get {
+                object obj = ResourceManager.GetObject("icons8-backspace-48", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap icons8_clear_24 {
             get {
                 object obj = ResourceManager.GetObject("icons8-clear-24", resourceCulture);
@@ -96,6 +106,16 @@ namespace AlumnosAsistencia.Properties {
         internal static System.Drawing.Bitmap icons8_clear_48 {
             get {
                 object obj = ResourceManager.GetObject("icons8-clear-48", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap icons8_send_to_printer_16 {
+            get {
+                object obj = ResourceManager.GetObject("icons8-send-to-printer-16", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

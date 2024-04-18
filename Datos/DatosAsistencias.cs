@@ -12,64 +12,26 @@ namespace Datos
     public class DatosAsistencias : DatosConexion
     {
         public int abmAsistencias(string accion, Asistencia objAsistencia)
-        {
-            #region abmVieja
-            //int resultado = -1;
-            //string orden = string.Empty;
-
-            //if (accion == "Alta")
-            //{
-            //    orden = $"insert into Asistencias (docAlumno, Fecha, Presente) values ('{objAsistencia.DocAlumno}', '{objAsistencia.Fecha}', '{objAsistencia.Presente}');";
-            //}
-
-            //if (accion == "Modificar")
-            //{
-            //    orden = $"update Asistencias set Fecha='{objAsistencia.Fecha}', Presente='{objAsistencia.Presente}' WHERE docAlumno like '%{objAsistencia.DocAlumno}%' AND Fecha = '{objAsistencia.Fecha}';";
-            //}
-
-            //if (accion == "Borrar")
-            //{
-            //    orden = $"delete from Asistencias WHERE docAlumno = '{objAsistencia.DocAlumno}' AND Fecha = '{objAsistencia.Fecha}';";
-            //}
-
-            //SqlCommand cmd = new SqlCommand(orden, conexion);
-
-            //try
-            //{
-            //    AbrirConexion();
-            //    resultado = cmd.ExecuteNonQuery();
-            //}
-            //catch (Exception e)
-            //{
-            //    throw new Exception("Error al tratar de guardar, borrar o modificar las asistencias de los alumnos", e);
-            //}
-            //finally
-            //{
-            //    CerrarConexion();
-            //    cmd.Dispose();
-            //}
-
-            //return resultado;
-            #endregion
-
+        {     
             int resultado = -1;
             string orden = string.Empty;
 
             if (accion == "Alta")
             {
-                orden = "INSERT INTO Asistencias (idAsistencia, docAlumno, Fecha, Presente) VALUES (@idAsistencia, @DocAlumno, @Fecha, @Presente)";
+                orden = "INSERT INTO Asistencias (docAlumno, Fecha, Presente) VALUES (@DocAlumno, @Fecha, @Presente)";
             }
-            else if (accion == "Modificar")
-            {
-                orden = "UPDATE Asistencias SET Fecha = @Fecha, Presente = @Presente WHERE idAsistencia = @idAsistencia AND docAlumno = @DocAlumno";
-            }
+            //else if (accion == "Modificar")
+            //{
+            //    // Consulta SQL para modificar la fecha y el estado de asistencia basándose en el ID de la asistencia
+            //    orden = "UPDATE Asistencias SET Fecha = @NuevaFecha, Presente = @Presente WHERE IdAsistencia = (SELECT IdAsistencia FROM Asistencias WHERE docAlumno = @DocAlumno and Fecha = @Fecha)";
+            //}
             else if (accion == "Borrar")
             {
-                orden = "DELETE FROM Asistencias WHERE idAsistencia = @idAsistencia AND docAlumno = @DocAlumno";
+                orden = "DELETE FROM Asistencias WHERE  docAlumno = @DocAlumno AND Fecha = @Fecha";
             }
 
             SqlCommand cmd = new SqlCommand(orden, conexion);
-            cmd.Parameters.AddWithValue("@idAsistencia", objAsistencia.IdAsistencia);
+            //cmd.Parameters.AddWithValue("@NuevaFecha", nuevaFecha);
             cmd.Parameters.AddWithValue("@DocAlumno", objAsistencia.DocAlumno);
             cmd.Parameters.AddWithValue("@Fecha", objAsistencia.Fecha);
             cmd.Parameters.AddWithValue("@Presente", objAsistencia.Presente);
@@ -91,7 +53,41 @@ namespace Datos
 
             return resultado;
         }
+        public int modificarAsistencias(string accion, Asistencia objAsistencia, DateTime nuevaFecha)
+        {
+            int resultado = -1;
+            string orden = string.Empty;
 
+            if (accion == "Modificar")
+            {
+                // Consulta SQL para modificar la fecha y el estado de asistencia basándose en el ID de la asistencia
+                orden = "UPDATE Asistencias SET Fecha = @NuevaFecha, Presente = @Presente WHERE docAlumno = @DocAlumno AND Fecha = @Fecha";
+            }
+
+
+            SqlCommand cmd = new SqlCommand(orden, conexion);
+            cmd.Parameters.AddWithValue("@NuevaFecha", nuevaFecha);
+            cmd.Parameters.AddWithValue("@DocAlumno", objAsistencia.DocAlumno);
+            cmd.Parameters.AddWithValue("@Fecha", objAsistencia.Fecha);
+            cmd.Parameters.AddWithValue("@Presente", objAsistencia.Presente);
+
+            try
+            {
+                AbrirConexion();
+                resultado = cmd.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error al tratar de guardar, borrar o modificar las asistencias de los alumnos", e);
+            }
+            finally
+            {
+                CerrarConexion();
+                cmd.Dispose();
+            }
+
+            return resultado;
+        }
         public DataSet listadoAsistencias(string documentoAlu, DateTime fecha)
         {
             string orden = string.Empty;
@@ -125,7 +121,6 @@ namespace Datos
 
             return ds;
         }
-
         public bool ExisteDniAlumno(string documentoAlu)
         {
             string consulta = "SELECT COUNT(*) FROM alumnos WHERE documento = @documentoAlu";
@@ -147,13 +142,13 @@ namespace Datos
                 CerrarConexion();
                 cmd.Dispose();
             }
-        }
 
-        public bool ExisteIdAsistencia(string idAsis)
+        }
+        public bool ExisteAsistencia(string asistenciaAlu)
         {
-            string consulta = "SELECT COUNT(*) FROM asistencias WHERE idAsistencia = @idAsis";
+            string consulta = "SELECT COUNT(*) FROM asistencias WHERE DocAlumno = @DocAlumno";
             SqlCommand cmd = new SqlCommand(consulta, conexion);
-            cmd.Parameters.AddWithValue("@idAsis", idAsis);
+            cmd.Parameters.AddWithValue("@DocAlumno", asistenciaAlu);
 
             try
             {
@@ -163,7 +158,7 @@ namespace Datos
             }
             catch (Exception e)
             {
-                throw new Exception("Error al verificar la existencia de la asistencia del Alumno.", e);
+                throw new Exception("Error al verificar la existencia del la asistencia del Alumno.", e);
             }
             finally
             {
@@ -171,5 +166,29 @@ namespace Datos
                 cmd.Dispose();
             }
         }
+        public bool ExisteAsistenciaFecha(int documentoAlu, DateTime fecha)
+        {
+            string consulta = "SELECT COUNT(*) FROM Asistencias WHERE DocAlumno = @DocAlumno AND Fecha = @Fecha";
+            SqlCommand cmd = new SqlCommand(consulta, conexion);
+            cmd.Parameters.AddWithValue("@DocAlumno", documentoAlu);
+            cmd.Parameters.AddWithValue("@Fecha", fecha);
+
+            try
+            {
+                AbrirConexion();
+                int count = (int)cmd.ExecuteScalar();
+                return count > 0; // Devuelve true si ya existe una asistencia para el alumno en la fecha especificada
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error al verificar la existencia de la asistencia del alumno.", e);
+            }
+            finally
+            {
+                CerrarConexion();
+                cmd.Dispose();
+            }
+        }
+
     }
 }

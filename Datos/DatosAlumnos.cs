@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 using Entidades;
+using System.Threading;
 
 namespace Datos
 {
@@ -18,20 +19,31 @@ namespace Datos
 
             if (accion == "Alta")
             {
-                orden = $"insert into Alumnos (Documento, Apellido, Nombre) values ({objAlumno.Documento}, '{objAlumno.Apellido}', '{objAlumno.Nombre}');";
+                orden = "INSERT INTO Alumnos (Documento, Apellido, Nombre, Activo) VALUES (@Documento, @Apellido, @Nombre, @Activo);";
             }
-
-            if (accion == "Modificar")
+            else if (accion == "Modificar")
             {
-                orden = $"update Alumnos set Apellido='{objAlumno.Apellido}', Nombre='{objAlumno.Nombre}' WHERE Documento like '%{objAlumno.Documento}%';";
+                orden = "UPDATE Alumnos SET Apellido = @Apellido, Nombre = @Nombre WHERE Documento = @Documento;";
             }
-
-            if (accion == "Borrar")
+            else if (accion == "Borrar")
             {
-                orden = $"delete from Alumnos WHERE Documento = '{objAlumno.Documento}';";
+                orden = "DELETE FROM Alumnos WHERE Documento = @Documento;";
+            }
+            else if (accion == "Baja")
+            {
+                orden = "UPDATE Alumnos SET Activo = 'N' WHERE Documento = @Documento;";
+            }
+            else if (accion == "Activar")
+            {
+                orden = "UPDATE Alumnos SET Activo = 'S' WHERE Documento = @Documento;";
             }
 
             SqlCommand cmd = new SqlCommand(orden, conexion);
+            cmd.Parameters.AddWithValue("@Documento", objAlumno.Documento);
+            cmd.Parameters.AddWithValue("@Apellido", objAlumno.Apellido);
+            cmd.Parameters.AddWithValue("@Nombre", objAlumno.Nombre);
+            cmd.Parameters.AddWithValue("@Activo", objAlumno.Activo);
+
 
             try
             {
@@ -50,7 +62,6 @@ namespace Datos
 
             return resultado;
         }
-
         public DataSet listadoAlumnos(string cual)
         {
             string orden = string.Empty;
@@ -85,7 +96,6 @@ namespace Datos
 
             return ds;
         }
-
         public bool ExisteDniAlumno(string documentoAlu)
         {
             string consulta = "SELECT COUNT(*) FROM alumnos WHERE documento = @documentoAlu";
@@ -108,6 +118,36 @@ namespace Datos
                 cmd.Dispose();
             }
         }
+        public List<int> ObtenerAlumnos()
+        {
+            List<int> lista = new List<int>();
+            string orden = "SELECT documento FROM Alumnos";
+            SqlCommand cmd = new SqlCommand(orden, conexion);
+            SqlDataReader dr;
+
+            try
+            {
+                AbrirConexion();
+                dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    int documento = dr.GetInt32(0); // Obtener el documento como un entero
+                    lista.Add(documento);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error al listar Documentos", e);
+            }
+            finally
+            {
+                CerrarConexion();
+                cmd.Dispose();
+            }
+
+            return lista;
+        }
+
 
     }
 }

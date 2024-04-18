@@ -17,15 +17,17 @@ namespace Negocio
         {
             return objDatosAlus.abmAlumnos(accion, objAlumno);
         }
-
         public DataSet listadoAlumnos(string cual)
         {
             return objDatosAlus.listadoAlumnos(cual);
         }
-
         public bool ExisteDniAlumno(string documentoAlu)
         {
             return objDatosAlus.ExisteDniAlumno(documentoAlu);
+        }
+        public List<int> ObtenerAlumnos()
+        {
+            return objDatosAlus.ObtenerAlumnos();
         }
     }
 }

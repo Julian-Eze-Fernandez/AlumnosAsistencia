@@ -17,21 +17,25 @@ namespace Negocio
         {
             return objDatosAsis.abmAsistencias(accion, objAsistencia);
         }
-
-
+        public int modificarAsistencias(string accion, Asistencia objAsistencia, DateTime nuevaFecha)
+        {
+            return objDatosAsis.modificarAsistencias(accion, objAsistencia, nuevaFecha);
+        }
         public DataSet listadoAsistencias(string documentoAlu, DateTime fecha)
         {
             return objDatosAsis.listadoAsistencias(documentoAlu, fecha);
         }
-
         public bool ExisteDniAlumno(string documentoAlu)
         {
             return objDatosAsis.ExisteDniAlumno(documentoAlu);
         }
-
-        public bool ExisteIdAsistencia(string idAsis)
+        public bool ExisteAsistencia(string asistenciaAlu)
         {
-            return objDatosAsis.ExisteIdAsistencia(idAsis);
+            return objDatosAsis.ExisteAsistencia(asistenciaAlu);
+        }
+        public bool ExisteAsistenciaFecha(int asistenciaAlu, DateTime fecha)
+        {
+            return objDatosAsis.ExisteAsistenciaFecha(asistenciaAlu, fecha);
         }
     }
 }
